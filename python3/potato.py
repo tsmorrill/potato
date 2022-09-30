@@ -30,8 +30,8 @@ class Stat:
 destiny = Stat("DESTINY", "DESTINY")
 potatoes = Stat("POTATO", "POTATOES")
 orcs = Stat("ORC", "ORCS")
-ransom = Stat("DARKNESS", "DARKNESS")
-ransom.value = 1
+darkness = Stat("DARKNESS", "DARKNESS")
+darkness.value = 1
 
 
 if os.name == 'nt':
@@ -78,6 +78,11 @@ def title():
     print("  ███        ███    ███     ███       ███    ███     ███     ███    ███")
     print(" ▄████▀       ▀██████▀     ▄████▀     ███    █▀     ▄████▀    ▀██████▀ ")
     print("")
+    print("You are a halfling, just trying to exist.")
+    print("Meanwhile, the Dark Lord rampages across the world.")
+    print("You do not care about this. You are trying to farm potatoes.")
+    print("Because what could a halfling possibly do about it anyway?")
+    print("")
     print("Design by Oliver Darkshire -- https://twitter.com/deathbybadger")
     print("Code by Tammy Morrill -- https://github.com/tsmorrill")
     pause()
@@ -96,7 +101,7 @@ def event():
     elif roll in {5, 6}:
         print("The World becomes a Darker, more Dangerous Place.")
         print("")
-        ransom.add(1)
+        darkness.add(1)
 
 
 def garden():
@@ -169,12 +174,12 @@ def print_stats():
 
 def bribe():
     def possible():
-        return orcs.value > 0 and ransom.value <= potatoes.value
+        return orcs.value > 0 and darkness.value <= potatoes.value
     print("")
     if not possible():
         input("Press Enter to Continue.")
     else:
-        r = ransom.value
+        r = darkness.value
         while possible():
             choice = input(f"Give up {r} {potatoes.name(r)} to remove 1 ORC? (y/n) ")
             if choice.lower() in {"y", "yes", "yes."}:
@@ -192,13 +197,19 @@ def bribe():
 def end():
     clear()
     if potatoes.value >= 10:
-        print("You have enough potatoes that you can go underground and not return to the surface until the danger is past.")
+        print("You have enough potatoes that you can go underground")
+        print("and not return to the surface until the danger is past.")
+        print("")
         print("You nestle down into your burrow and enjoy your well earned rest.")
     elif orcs.value >= 10:
         print("Orcs finally find your potato farm.")
-        print("Alas, orcs are not so interested in potatoes as they are in eating you, and you end up in a cookpot.")
+        print("")
+        print("Alas, orcs are not so interested in potatoes as they are in eating you.")
+        print("You end up in a cookpot.")
     elif destiny.value >= 10:
-        print("An interfering bard or wizard turns up at your doorstep with a quest, and you are whisked away against your will on an adventure.")
+        print("An interfering bard or wizard turns up at your doorstep with a quest.")
+        print("")
+        print("You are whisked away against your will on an adventure.")
     print("")
     print("GAME OVER")
     print("")
