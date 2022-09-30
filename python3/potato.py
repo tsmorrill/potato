@@ -3,80 +3,84 @@ import os
 
 
 class Stat:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, singular, plural):
+        self.singular = singular
+        self.plural = plural
         self.value = 0
 
+    def name(self, n):
+        if n == 1:
+            return self.singular
+        else:
+            return self.plural
+
+    def print(self):
+        n = self.value
+        print(f"{n} {self.name(n)}")
+
     def add(self, n):
-        print(f"+{n}", self.name)
+        print(f"+{n} {self.name(n)}")
         self.value += n
 
     def remove(self, n):
-        print(f"-{n}", self.name)
+        print(f"-{n} {self.name(n)}")
         self.value = max(0, self.value - n)
 
 
-destiny = Stat("DESTINY")
-potatoes = Stat("POTATO")
-orcs = Stat("ORC")
-ransom = Stat("RANSOM")
+destiny = Stat("DESTINY", "DESTINY")
+potatoes = Stat("POTATO", "POTATOES")
+orcs = Stat("ORC", "ORCS")
+ransom = Stat("DARKNESS", "DARKNESS")
 ransom.value = 1
+
+
+if os.name == 'nt':
+    clear_string = 'cls'
+else:
+    clear_string = 'clear'
+
+
+def clear():
+    os.system(clear_string)
 
 
 def d6():
     return randrange(1, 7)
 
 
+def pause():
+    print("")
+    input("Press Enter to Continue.")
+
+
 def main():
+    title()
     while True:
         clear()
         event()
-        if potatoes.value >= 10:
-            print("You have enough potatoes that you can go underground and not return to the surface until the danger is past.")
-            print("You nestle down into your burrow and enjoy your well earned rest.")
+        print("")
+        print_stats()
+        if max(potatoes.value, orcs.value, destiny.value) >= 10:
             break
-        if orcs.value >= 10:
-            print("Orcs finally find your potato farm.")
-            print("Alas, orcs are not so interested in potatoes as they are in eating you, and you end up in a cookpot.")
-            break
-        if destiny.value >= 10:
-            print("An interfering bard or wizard turns up at your doorstep with a quest, and you are whisked away against your will on an adventure")
-            break
-        next()
-        if not bribable():
-            print("")
-            input("=>")
-            print("")
-        else:
-            while bribable():
-                r = ransom.value
-                suffix = "ES"*int(potatoes.value >= 2)
-                choice = input(f"Remove {r} POTATO{suffix} to remove 1 ORC? (y/n) ")
-                if choice == "n":
-                    break
-                if choice == "y":
-                    potatoes.remove(r)
-                    orcs.remove(1)
-    print("GAME OVER")
+        bribe()
+    pause()
+    end()
 
 
-def bribable():
-    return orcs.value > 0 and ransom.value <= potatoes.value
-
-
-def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-
-def next():
+def title():
+    clear()
+    print("   ▄███████▄  ▄██████▄      ███        ▄████████     ███      ▄██████▄ ")
+    print("  ███    ███ ███    ███ ▀█████████▄   ███    ███ ▀█████████▄ ███    ███")
+    print("  ███    ███ ███    ███    ▀███▀▀██   ███    ███    ▀███▀▀██ ███    ███")
+    print("  ███    ███ ███    ███     ███   ▀   ███    ███     ███   ▀ ███    ███")
+    print("▀█████████▀  ███    ███     ███     ▀███████████     ███     ███    ███")
+    print("  ███        ███    ███     ███       ███    ███     ███     ███    ███")
+    print("  ███        ███    ███     ███       ███    ███     ███     ███    ███")
+    print(" ▄████▀       ▀██████▀     ▄████▀     ███    █▀     ▄████▀    ▀██████▀ ")
     print("")
-    print(f"{destiny.value} DESTINY")
-    p = potatoes.value
-    suffix = "ES"*int(p >= 2)
-    print(f"{p} POTATO{suffix}")
-    o = orcs.value
-    suffix = "S"*int(o >= 2)
-    print(f"{o} ORC{suffix}")
+    print("Design by Oliver Darkshire -- https://twitter.com/deathbybadger")
+    print("Code by Tammy Morrill -- https://github.com/tsmorrill")
+    pause()
 
 
 def event():
@@ -90,7 +94,8 @@ def event():
         print("")
         knock()
     elif roll in {5, 6}:
-        print("The world becomes a darker, more dangerous place.")
+        print("The World becomes a Darker, more Dangerous Place.")
+        print("")
         ransom.add(1)
 
 
@@ -103,8 +108,8 @@ def garden():
     elif roll == 2:
         print("You narrowly avoid a visitor by hiding in a potato sack.")
         print("")
-        potatoes.add(1)
         destiny.add(1)
+        potatoes.add(1)
     elif roll == 3:
         print("A hooded stranger lingers outside your farm.")
         print("")
@@ -113,8 +118,8 @@ def garden():
     elif roll == 4:
         print("Your field is ravaged in the night by unseen enemies.")
         print("")
-        orcs.add(1)
         potatoes.remove(1)
+        orcs.add(1)
     elif roll == 5:
         print("You trade potatoes for other delicious foodstuffs.")
         print("")
@@ -143,8 +148,8 @@ def knock():
     elif roll == 4:
         print("There are rumors of war in the reaches. You eat some potatoes.")
         print("")
-        orcs.add(2)
         potatoes.remove(1)
+        orcs.add(2)
     elif roll == 5:
         print("It's an elf. They are not serious people.")
         print("")
@@ -154,6 +159,49 @@ def knock():
         print("You really must remember to pay them a visit one of these years.")
         print("")
         potatoes.add(2)
+
+
+def print_stats():
+    destiny.print()
+    potatoes.print()
+    orcs.print()
+
+
+def bribe():
+    def possible():
+        return orcs.value > 0 and ransom.value <= potatoes.value
+    print("")
+    if not possible():
+        input("Press Enter to Continue.")
+    else:
+        r = ransom.value
+        while possible():
+            choice = input(f"Give up {r} {potatoes.name(r)} to remove 1 ORC? (y/n) ")
+            if choice.lower() in {"y", "yes", "yes."}:
+                print("")
+                potatoes.remove(r)
+                orcs.remove(1)
+                print("")
+                print_stats()
+                if not possible():
+                    pause()
+            else:
+                break
+
+
+def end():
+    clear()
+    if potatoes.value >= 10:
+        print("You have enough potatoes that you can go underground and not return to the surface until the danger is past.")
+        print("You nestle down into your burrow and enjoy your well earned rest.")
+    elif orcs.value >= 10:
+        print("Orcs finally find your potato farm.")
+        print("Alas, orcs are not so interested in potatoes as they are in eating you, and you end up in a cookpot.")
+    elif destiny.value >= 10:
+        print("An interfering bard or wizard turns up at your doorstep with a quest, and you are whisked away against your will on an adventure.")
+    print("")
+    print("GAME OVER")
+    print("")
 
 
 if __name__ == "__main__":
