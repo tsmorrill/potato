@@ -27,11 +27,14 @@ class Stat:
         self.value = max(0, self.value - n)
 
 
+version = "1 tate 0"
+
 destiny = Stat("DESTINY", "DESTINY")
 potatoes = Stat("POTATO", "POTATOES")
 orcs = Stat("ORC", "ORCS")
 darkness = Stat("DARKNESS", "DARKNESS")
 darkness.value = 1
+secret = False
 
 
 if os.name == 'nt':
@@ -58,7 +61,6 @@ def main():
     while True:
         clear()
         event()
-        print("")
         print_stats()
         if max(potatoes.value, orcs.value, destiny.value) >= 10:
             break
@@ -68,6 +70,7 @@ def main():
 
 
 def title():
+    length = 67 - len(version)
     clear()
     print("   ▄███████▄  ▄██████▄      ███        ▄████████     ███      ▄██████▄ ")
     print("  ███    ███ ███    ███ ▀█████████▄   ███    ███ ▀█████████▄ ███    ███")
@@ -77,6 +80,7 @@ def title():
     print("  ███        ███    ███     ███       ███    ███     ███     ███    ███")
     print("  ███        ███    ███     ███       ███    ███     ███     ███    ███")
     print(" ▄████▀       ▀██████▀     ▄████▀     ███    █▀     ▄████▀    ▀██████▀ ")
+    print(" "*length, "v.", version)
     print("")
     print("You are a halfling, just trying to exist.")
     print("Meanwhile, the Dark Lord rampages across the world.")
@@ -94,14 +98,18 @@ def event():
         print("In the Garden...")
         print("")
         garden()
+        print("")
     elif roll in {3, 4}:
         print("A Knock at the Door...")
         print("")
         knock()
+        print("")
     elif roll in {5, 6}:
         print("The World becomes a Darker, more Dangerous Place.")
         print("")
         darkness.add(1)
+        print("")
+        darkness.print()
 
 
 def garden():
@@ -161,12 +169,13 @@ def knock():
         destiny.add(1)
     elif roll == 6:
         print("It's a sack of potatoes from a generous neighbour.")
+        print("")
         print("You really must remember to pay them a visit one of these years.")
         print("")
         potatoes.add(2)
 
 
-def print_stats():
+def print_stats(show_darkness=False):
     destiny.print()
     potatoes.print()
     orcs.print()
@@ -181,8 +190,9 @@ def bribe():
     else:
         r = darkness.value
         while possible():
-            choice = input(f"Give up {r} {potatoes.name(r)} to remove 1 ORC? (y/n) ")
-            if choice.lower() in {"y", "yes", "yes."}:
+            choice = input(
+                f"Give up {r} {potatoes.name(r)} to remove 1 ORC? (Press Enter to Skip.) ")
+            if choice.lower() in {"y", "yes", "yes.", "give up"}:
                 print("")
                 potatoes.remove(r)
                 orcs.remove(1)
@@ -191,21 +201,28 @@ def bribe():
                 if not possible():
                     pause()
             else:
+                if choice == "Bombadil":
+                    global secret
+                    secret = True
                 break
 
 
 def end():
     clear()
-    if potatoes.value >= 10:
-        print("You have enough potatoes that you can go underground")
-        print("and not return to the surface until the danger is past.")
+    if secret:
+        print("An interruption. Your cousin begs you let him be the Dark Lord again.")
+        print("")
+        print("Yes, he makes a decent bad guy, but he doesn't have to be so MEAN about it.")
+        print("")
+        print("You return to playing with your toy farm on the bard's kitchen floor.")
+    elif potatoes.value >= 10:
+        print("There are enough potatoes that you can go underground 'til danger is past.")
         print("")
         print("You nestle down into your burrow and enjoy your well earned rest.")
     elif orcs.value >= 10:
         print("Orcs finally find your potato farm.")
         print("")
         print("Alas, orcs are not so interested in potatoes as they are in eating you.")
-        print("You end up in a cookpot.")
     elif destiny.value >= 10:
         print("An interfering bard or wizard turns up at your doorstep with a quest.")
         print("")
